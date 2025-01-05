@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Drag and Drop Game</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        .card {
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .dropzone {
+            border: 2px dashed #4CAF50;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #4CAF50;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .dropzone.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .dropzone.failure {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .selected {
+            outline: 2px solid #007bff;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="#" onClick="window.location.reload()" class="btn btn-primary">Click this link</a>
+    <div class="container my-5" id="quizz-container">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script>
+
+        function generateRandomOperation() {
+            const operators = ['+', '-', '*', '/'];
+
+            const num1 = Math.floor(Math.random() * 100) + 1;
+            const num2 = Math.floor(Math.random() * 100) + 1;
+
+            const operator = operators[Math.floor(Math.random() * operators.length)];
+
+            let result;
+            switch (operator) {
+                case '+':
+                    result = num1 + num2;
+                    generate_puzzle(num1, num2, '+', result, digit = 100)
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    generate_puzzle(num1, num2, '-', result, digit = 100)
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    generate_puzzle(num1, num2, '*', result, digit = 100)
+                    break;
+                case '/':
+                    result = (num2 !== 0) ? (num1 / num2) : 'undefined';
+                    generate_puzzle(num1, num2, '/', result, digit = 100)
+                    break;
+            }
+        }
+
+        function generate_puzzle(oper1, oper2, operator, answer, digit = 100) {
+            let main_template = ` <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="card bg-light">
+                    <div class="card-body">${oper1}</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-light">
+                    <div class="card-body">${operator}</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-light">
+                    <div class="card-body">${oper2}</div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-light">
+                    <div class="card-body">=</div>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="dropzone" id="dropzone1">
+                    Dropzone
+                </div>
+            </div>
+        </div>
+        <div class="puzzle-container"></div>`;
+            $("#quizz-container").append(main_template);
+
+            const randomNumbers = [];
+
+            for (let i = 0; i < 3; i++) {
+                const randomNumber = Math.floor(Math.random() * digit);
+                randomNumbers.push(randomNumber);
+            }
+            randomNumbers.push(answer);
+
+            const data = randomNumbers.sort(() => Math.random() - 0.5);
+
+
+            let template = ` <div class="row">
+            <div class="col-md-3">
+                <div class="card bg-light drager" id="dragger-${data[0]}">
+                    <div class="card-body">${data[0]}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light drager" id="dragger-${data[1]}">
+                    <div class="card-body">${data[1]}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light drager" id="dragger-${data[2]}">
+                    <div class="card-body">${data[2]}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light drager" id="dragger-${data[3]}">
+                    <div class="card-body">${data[3]}</div>
+                </div>
+            </div>
+        </div>`;
+            $(".puzzle-container").append(template);
+            document.addEventListener('DOMContentLoaded', function () {
+                const dropzone = document.querySelector('.dropzone');
+                const cards = document.querySelectorAll('.drager');
+
+                function triggerConfetti() {
+                    const count = 200;
+                    const defaults = { origin: { y: 0.7 } };
+
+                    function fire(particleRatio, opts) {
+                        confetti(
+                            Object.assign({}, defaults, opts, {
+                                particleCount: Math.floor(count * particleRatio),
+                            })
+                        );
+                    }
+
+                    fire(0.25, { spread: 26, startVelocity: 55 });
+                    fire(0.2, { spread: 60 });
+                    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                    fire(0.1, { spread: 120, startVelocity: 45 });
+                }
+
+                function triggerShake(element) {
+                    gsap.fromTo(
+                        element,
+                        { x: -10 },
+                        { x: 10, duration: 0.1, repeat: 5, yoyo: true, onComplete: () => gsap.to(element, { x: 0 }) }
+                    );
+                }
+
+                cards.forEach(card => {
+                    card.addEventListener('click', function () {
+                        cards.forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        const cardRect = card.getBoundingClientRect();
+                        const dropzoneRect = dropzone.getBoundingClientRect();
+
+                        const deltaX = dropzoneRect.left - cardRect.left;
+                        const deltaY = dropzoneRect.top - cardRect.top;
+
+                        gsap.to(card, {
+                            x: deltaX, y: deltaY, duration: 1, onComplete: () => {
+                                const isMatch = card.id === `dragger-${answer}`;
+                                if (isMatch) {
+                                    dropzone.classList.add('success');
+                                    console.log(`Matched: ${card.textContent.trim()} to Dropzone`);
+                                    triggerConfetti();
+                                } else {
+                                    dropzone.classList.add('failure');
+                                    console.log(`Not Matched: ${card.textContent.trim()} to Dropzone`);
+                                    triggerShake(dropzone);
+                                }
+
+
+                                setTimeout(() => {
+                                    dropzone.classList.remove('success', 'failure');
+                                    card.style.transform = '';
+                                    card.classList.remove('selected');
+                                }, 1000);
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
+        generateRandomOperation()
+    </script>
+
+</body>
+
+</html>
