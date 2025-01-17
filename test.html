@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manipulate Shake Animation Duration</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @keyframes shake {
+            0% {
+                transform: translateY(0);
+            }
+
+            25% {
+                transform: translateY(-10px);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+
+            75% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .shake {
+            animation: shake 4s ease-in-out infinite;
+        }
+
+        .shake-inverse {
+            animation: shake -4s ease-in-out infinite;
+        }
+
+        .container {
+            width: 200px;
+            height: 100px;
+            background-color: lightblue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: orange;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container mt-4 mb-5">
+        <div class="btn">Shake Me!</div>
+    </div>
+
+    
+    <div class="row mt-4">
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary shake-inverse">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+    </div>
+    <div class="row mt-4">
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary shake-inverse">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary shake-inverse">&nbsp;Hello world</div>
+        <div class="col col-4 bg-primary container-shake">&nbsp;Hello world</div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            $('.container-shake').addClass('shake');
+            $(".shake-inverse").addClass('shake-inverse')
+
+            var customDuration = 4;
+            $('.container').css('animation', 'shake ' + customDuration + 's ease-in-out infinite');
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Widgets with Path Connectors</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.4.0/fabric.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #f0f0f0;
+        }
+
+        .widget {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<div id="canvas-container">
+    <canvas id="fabricCanvas"></canvas>
+    <div id="widget1" class="widget" style="top: 100px; left: 100px;">Widget 1</div>
+    <div id="widget2" class="widget" style="top: 300px; left: 300px;">Widget 2</div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Initialize Fabric.js Canvas
+        const canvas = new fabric.Canvas('fabricCanvas', {
+            selection: false
+        });
+
+        const canvasContainer = document.getElementById('canvas-container');
+        const canvasElement = document.getElementById('fabricCanvas');
+        canvasElement.width = canvasContainer.offsetWidth;
+        canvasElement.height = canvasContainer.offsetHeight;
+
+        // Initialize connectors array
+        const connectors = [];
+
+        // Function to draw connectors
+        function drawConnectors() {
+            canvas.clear();
+            connectors.forEach(connector => {
+                const { from, to } = connector;
+                const fromOffset = $(`#${from}`).offset();
+                const toOffset = $(`#${to}`).offset();
+
+                const fromCenter = {
+                    x: fromOffset.left + $(`#${from}`).outerWidth() / 2,
+                    y: fromOffset.top + $(`#${from}`).outerHeight() / 2,
+                };
+
+                const toCenter = {
+                    x: toOffset.left + $(`#${to}`).outerWidth() / 2,
+                    y: toOffset.top + $(`#${to}`).outerHeight() / 2,
+                };
+
+                const line = new fabric.Line([fromCenter.x, fromCenter.y, toCenter.x, toCenter.y], {
+                    stroke: 'black',
+                    selectable: false,
+                });
+
+                canvas.add(line);
+            });
+            canvas.renderAll();
+        }
+
+        // Make widgets draggable
+        $('.widget').draggable({
+            drag: function () {
+                drawConnectors();
+            }
+        });
+
+        // Add connectors
+        connectors.push({ from: 'widget1', to: 'widget2' });
+
+        // Draw initial connectors
+        drawConnectors();
+    });
+</script>
+
+</body>
+</html>

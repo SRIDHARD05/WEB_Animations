@@ -17,12 +17,20 @@
     }
 
     .grid-item {
-      background-color: #4CAF50;
+      background-color: red;
       color: white;
       padding: 20px;
       text-align: center;
       border-radius: 8px;
       cursor: move;
+    }
+
+    .grid-item.correct {
+      background-color: green;
+    }
+
+    .grid-item.incorrect {
+      background-color: red;
     }
 
     .progress-bar {
@@ -47,11 +55,11 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"
     integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  
   <script>
-   function generateRandomAlphabets(count) {
+    function generateRandomAlphabets(count) {
       let randomAlphabets = [];
       let usedNumbers = new Set();
+      let alphabetMapping = {};
 
       for (let i = 0; i < count; i++) {
         let randomNumber;
@@ -63,28 +71,36 @@
         usedNumbers.add(randomNumber);
 
         let letter = String.fromCharCode(64 + randomNumber);
-        let template = `<div class="grid-item" id="grid-item-${randomNumber}">Item ${letter}</div>`;
+        let template = `<div class="grid-item" id="grid-item-${letter}">Item ${letter}</div>`;
         $('.grid-container').append(template);
 
-        randomAlphabets.push(randomNumber);
+        randomAlphabets.push(letter);
+        alphabetMapping[letter] = randomNumber;
       }
-      return randomAlphabets;
+
+      let result = [alphabetMapping, randomAlphabets];
+      return result;
     }
 
     $(document).ready(function () {
+      // TODO: Assign integers based on your skill levels
+      const [alphabetMapping, randomAlphabets] = generateRandomAlphabets(26);
+      console.log(alphabetMapping);
 
-      generateRandomAlphabets(26);
+      const expectedOrder = randomAlphabets.slice().sort().map(letter => `grid-item-${letter}`);
 
       const sortable = new Sortable(document.getElementById('sortable-grid'), {
         animation: 150,
         onEnd: function () {
           const gridItems = $('#sortable-grid').children();
-          const expectedOrder = Array.from({ length: 26 }, (_, i) => `grid-item-${i + 1}`);
           let correctCount = 0;
 
           gridItems.each(function (index) {
             if (this.id === expectedOrder[index]) {
+              $(this).removeClass('incorrect').addClass('correct');
               correctCount++;
+            } else {
+              $(this).removeClass('correct').addClass('incorrect');
             }
           });
 
@@ -122,6 +138,7 @@
       fire(0.1, { spread: 120, startVelocity: 45 });
     }
   </script>
+
 </body>
 
 </html>
